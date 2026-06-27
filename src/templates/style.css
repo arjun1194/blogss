@@ -1,3 +1,7 @@
+* {
+  box-sizing: border-box;
+}
+
 :root {
   --bg-color: #fdfcfb;
   --text-color: #1a1b1c;
