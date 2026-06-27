@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{TITLE}} - My Book</title>
+  <link rel="stylesheet" href="{{RELATIVE_PATH}}style.css">
+</head>
+<body>
+
+  <!-- Small top right corner badge -->
+  <a href="#no-ai-badge-footer" class="ai-badge-header">
+    <span>[100% Human Written]</span>
+  </a>
+
+  <!-- Sidebar menu toggle button -->
+  <button class="sidebar-toggle-btn" id="sidebar-toggle">☰ Chapters</button>
+
+  <!-- Sidebar explore drawer -->
+  <aside class="sidebar" id="sidebar-drawer">
+    <input type="text" id="sidebar-search" class="search-input" placeholder="Search chapters...">
+    {{SIDEBAR}}
+  </aside>
+
+  <div class="container">
+    <header>
+      <h1><a href="{{RELATIVE_PATH}}index.html">My Book</a></h1>
+      <button id="theme-toggle">Theme</button>
+    </header>
+
+    <main>
+      <article>
+        {{CONTENT}}
+      </article>
+    </main>
+
+    <footer>
+      <div class="footer-layout">
+        <div class="sitemap-links">
+          <strong>Sitemap</strong>
+          <ul>
+            <li><a href="{{RELATIVE_PATH}}index.html">Home</a></li>
+            <li><a href="https://github.com">GitHub Repository</a></li>
+          </ul>
+        </div>
+        
+        <div class="ai-badge-footer-container" id="no-ai-badge-footer">
+          <svg class="ai-badge-svg" viewBox="0 0 100 100" width="48" height="48">
+            <path d="M50 5 L95 28 L95 72 L50 95 L5 72 L5 28 Z" fill="none" stroke="currentColor" stroke-width="2"/>
+            <text x="50" y="45" font-size="28" font-family="monospace" text-anchor="middle" fill="currentColor">H</text>
+            <text x="50" y="70" font-size="12" font-family="monospace" text-anchor="middle" fill="currentColor">100%</text>
+          </svg>
+          <div class="ai-badge-text">
+            <strong>No AI Content Policy</strong>
+            <p>This website is crafted entirely from scratch. Every sentence is written directly by human hands, word by word.</p>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Theme toggle logic
+    const themeToggle = document.getElementById('theme-toggle');
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+
+    themeToggle.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+    });
+
+    // Sidebar drawer toggle logic
+    const sidebar = document.getElementById('sidebar-drawer');
+    const toggleBtn = document.getElementById('sidebar-toggle');
+    toggleBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('active');
+    });
+
+    // Sidebar search filtering
+    const searchInput = document.getElementById('sidebar-search');
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      const links = sidebar.querySelectorAll('.sidebar-links li');
+      links.forEach(li => {
+        const text = li.textContent.toLowerCase();
+        if (text.includes(query)) {
+          li.style.display = 'block';
+        } else {
+          li.style.display = 'none';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
