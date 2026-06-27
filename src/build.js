@@ -3,9 +3,9 @@ import path from 'path';
 import { marked } from 'marked';
 import { parseFrontmatter, calculateReadingTime, slugify } from './helpers.js';
 
-const CONTENT_DIR = path.resolve('content');
-const DIST_DIR = path.resolve('dist');
-const TEMPLATES_DIR = path.resolve('src/templates');
+const CONTENT_DIR = process.env.CONTENT_DIR ? path.resolve(process.env.CONTENT_DIR) : path.resolve('content');
+const DIST_DIR = process.env.DIST_DIR ? path.resolve(process.env.DIST_DIR) : path.resolve('dist');
+const TEMPLATES_DIR = process.env.TEMPLATES_DIR ? path.resolve(process.env.TEMPLATES_DIR) : path.resolve('src/templates');
 
 // Ensure output directories exist
 if (!fs.existsSync(DIST_DIR)) fs.mkdirSync(DIST_DIR);

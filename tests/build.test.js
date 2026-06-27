@@ -5,12 +5,15 @@ import path from 'path';
 import { execSync } from 'child_process';
 
 test('build script compiles posts correctly, sorting by date and avoiding injection bugs', () => {
-  const contentDir = path.resolve('content');
-  const distDir = path.resolve('dist');
+  const contentDir = path.resolve('tests/temp_content');
+  const distDir = path.resolve('tests/temp_dist');
 
   // Ensure clean setup
   if (fs.existsSync(contentDir)) {
     fs.rmSync(contentDir, { recursive: true, force: true });
+  }
+  if (fs.existsSync(distDir)) {
+    fs.rmSync(distDir, { recursive: true, force: true });
   }
   fs.mkdirSync(contentDir);
 
@@ -41,7 +44,13 @@ Regular body.`;
 
   try {
     // Run the build script
-    execSync('node src/build.js');
+    execSync('node src/build.js', {
+      env: {
+        ...process.env,
+        CONTENT_DIR: contentDir,
+        DIST_DIR: distDir
+      }
+    });
 
     // 1. Verify files are created
     const postOneHtmlPath = path.join(distDir, 'posts', 'tech', 'post-one.html');
@@ -68,7 +77,8 @@ Regular body.`;
     if (fs.existsSync(contentDir)) {
       fs.rmSync(contentDir, { recursive: true, force: true });
     }
-    // Re-run build to clear the generated files or just let it be
-    execSync('node src/build.js');
+    if (fs.existsSync(distDir)) {
+      fs.rmSync(distDir, { recursive: true, force: true });
+    }
   }
 });
