@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert';
-import { parseFrontmatter, calculateReadingTime, slugify } from '../src/helpers.js';
+import { parseFrontmatter, calculateReadingTime, slugify, escapeHtml } from '../src/helpers.js';
 
 test('parseFrontmatter parses YAML blocks correctly', () => {
   const content = `---\ntitle: On Walking\ncategory: Life\ntags: [life, personal]\nexcerpt: Just walk.\n---\nThis is body.`;
@@ -57,5 +57,12 @@ test('parseFrontmatter handles empty arrays correctly', () => {
   const { metadata } = parseFrontmatter(content);
   assert.deepStrictEqual(metadata.tags, []);
 });
+
+test('escapeHtml escapes HTML special characters correctly', () => {
+  assert.strictEqual(escapeHtml('<div>Hello & "Welcome"\'</div>'), '&lt;div&gt;Hello &amp; &quot;Welcome&quot;&#39;&lt;/div&gt;');
+  assert.strictEqual(escapeHtml(''), '');
+  assert.strictEqual(escapeHtml(null), '');
+});
+
 
 

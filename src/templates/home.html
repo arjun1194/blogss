@@ -89,15 +89,25 @@
       const posts = document.querySelectorAll('.post-item');
       const activeTags = document.querySelectorAll('.filter-tag');
       
+      const slugify = text => text.toString().toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^\w\-]+/g, '')
+        .replace(/\-\-+/g, '-')
+        .replace(/^-+/, '')
+        .replace(/-+$/, '');
+        
+      const targetSlug = slugify(tag);
+
       activeTags.forEach(el => {
-        if (el.dataset.tag === tag) el.classList.add('active');
+        if (el.dataset.tag === targetSlug) el.classList.add('active');
         else el.classList.remove('active');
       });
 
       posts.forEach(post => {
         const postTags = JSON.parse(post.dataset.tags || '[]');
+        const postTagsSlugs = postTags.map(slugify);
         const postCategory = post.dataset.category || '';
-        if (tag === 'all' || postTags.includes(tag) || postCategory === tag) {
+        if (tag === 'all' || postTagsSlugs.includes(targetSlug) || postCategory === targetSlug) {
           post.style.display = 'block';
         } else {
           post.style.display = 'none';

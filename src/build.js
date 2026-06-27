@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { marked } from 'marked';
-import { parseFrontmatter, calculateReadingTime, slugify } from './helpers.js';
+import { parseFrontmatter, calculateReadingTime, slugify, escapeHtml } from './helpers.js';
 
 const CONTENT_DIR = process.env.CONTENT_DIR ? path.resolve(process.env.CONTENT_DIR) : path.resolve('content');
 const DIST_DIR = process.env.DIST_DIR ? path.resolve(process.env.DIST_DIR) : path.resolve('dist');
@@ -53,7 +53,7 @@ for (const file of mdFiles) {
   
   posts.push({
     title: metadata.title,
-    date: metadata.date || '2026-06-28',
+    date: metadata.date || new Date().toISOString().split('T')[0],
     category,
     categorySlug,
     tags: metadata.tags || [],
@@ -80,10 +80,10 @@ posts.forEach(post => {
 
 for (const [category, catPosts] of Object.entries(postsByCategory)) {
   sidebarHtml += `<div class="sidebar-category">`;
-  sidebarHtml += `  <div class="sidebar-category-title">${category}</div>`;
+  sidebarHtml += `  <div class="sidebar-category-title">${escapeHtml(category)}</div>`;
   sidebarHtml += `  <ul class="sidebar-links">`;
   catPosts.forEach(post => {
-    sidebarHtml += `    <li><a href="{{RELATIVE_PATH}}${post.relativePath}">${post.title}</a></li>`;
+    sidebarHtml += `    <li><a href="{{RELATIVE_PATH}}${post.relativePath}">${escapeHtml(post.title)}</a></li>`;
   });
   sidebarHtml += `  </ul>`;
   sidebarHtml += `</div>`;
@@ -96,12 +96,18 @@ posts.forEach(post => {
     fs.mkdirSync(categoryDistDir, { recursive: true });
   }
   
-  // Replace placeholders in templates
-  let html = baseTemplate
-    .replace(/\{\{TITLE\}\}/g, () => post.title)
-    .replace(/\{\{CONTENT\}\}/g, () => post.bodyHtml)
-    .replace(/\{\{SIDEBAR\}\}/g, () => sidebarHtml.replace(/\{\{RELATIVE_PATH\}\}/g, () => '../../'))
-    .replace(/\{\{RELATIVE_PATH\}\}/g, () => '../../');
+  // Replace placeholders in templates with corrected order:
+  // 1. {{RELATIVE_PATH}} first
+  // 2. {{TITLE}} and {{SIDEBAR}} next
+  // 3. {{CONTENT}} last
+  const relativePath = '../../';
+  let html = baseTemplate.replace(/\{\{RELATIVE_PATH\}\}/g, () => relativePath);
+  const sidebar = sidebarHtml.replace(/\{\{RELATIVE_PATH\}\}/g, () => relativePath);
+  
+  html = html
+    .replace(/\{\{TITLE\}\}/g, () => escapeHtml(post.title))
+    .replace(/\{\{SIDEBAR\}\}/g, () => sidebar)
+    .replace(/\{\{CONTENT\}\}/g, () => post.bodyHtml);
     
   fs.writeFileSync(path.join(DIST_DIR, post.relativePath), html);
 });
@@ -113,18 +119,18 @@ const allTags = new Set();
 posts.forEach(post => {
   post.tags.forEach(t => allTags.add(t));
   
-  const tagsListHtml = post.tags.map(t => `<span class="post-tag" onclick="filterPosts('${t}')">#${t}</span>`).join(' ');
+  const tagsListHtml = post.tags.map(t => `<span class="post-tag" onclick="filterPosts('${slugify(t)}')">#${escapeHtml(t)}</span>`).join(' ');
   
   postsListHtml += `
-    <div class="post-item" data-category="${post.categorySlug}" data-tags='${JSON.stringify(post.tags)}'>
-      <h3 class="post-title"><a href="${post.relativePath}">${post.title}</a></h3>
+    <div class="post-item" data-category="${post.categorySlug}" data-tags="${JSON.stringify(post.tags).replace(/"/g, '&quot;')}">
+      <h3 class="post-title"><a href="${post.relativePath}">${escapeHtml(post.title)}</a></h3>
       <div class="post-meta">
-        <span class="post-category-badge" onclick="filterPosts('${post.categorySlug}')">${post.category}</span>
+        <span class="post-category-badge" onclick="filterPosts('${post.categorySlug}')">${escapeHtml(post.category)}</span>
         <span>${post.date}</span>
         <span>•</span>
         <span>${post.readingTime}</span>
       </div>
-      <p class="post-excerpt">${post.excerpt}</p>
+      <p class="post-excerpt">${escapeHtml(post.excerpt)}</p>
       <div class="post-tags-list">
         ${tagsListHtml}
       </div>
@@ -132,15 +138,25 @@ posts.forEach(post => {
   `;
 });
 
+const seenSlugs = new Set();
 let tagsCloudHtml = '';
+
+// Render tags
 allTags.forEach(tag => {
-  tagsCloudHtml += `<button class="filter-tag" data-tag="${tag}" onclick="filterPosts('${tag}')">${tag}</button> `;
+  const slug = slugify(tag);
+  if (!seenSlugs.has(slug)) {
+    seenSlugs.add(slug);
+    tagsCloudHtml += `<button class="filter-tag" data-tag="${slug}" onclick="filterPosts('${slug}')">${escapeHtml(tag)}</button> `;
+  }
 });
 
-// Also include categories in tag cloud
+// Render categories
 Object.keys(postsByCategory).forEach(cat => {
-  const catSlug = slugify(cat);
-  tagsCloudHtml += `<button class="filter-tag" data-tag="${catSlug}" onclick="filterPosts('${catSlug}')">${cat}</button> `;
+  const slug = slugify(cat);
+  if (!seenSlugs.has(slug)) {
+    seenSlugs.add(slug);
+    tagsCloudHtml += `<button class="filter-tag" data-tag="${slug}" onclick="filterPosts('${slug}')">${escapeHtml(cat)}</button> `;
+  }
 });
 
 const homepageHtml = homeTemplate

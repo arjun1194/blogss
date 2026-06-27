@@ -97,13 +97,26 @@
     const searchInput = document.getElementById('sidebar-search');
     searchInput.addEventListener('input', (e) => {
       const query = e.target.value.toLowerCase();
-      const links = sidebar.querySelectorAll('.sidebar-links li');
-      links.forEach(li => {
-        const text = li.textContent.toLowerCase();
-        if (text.includes(query)) {
-          li.style.display = 'block';
+      const categories = sidebar.querySelectorAll('.sidebar-category');
+      
+      categories.forEach(cat => {
+        const links = cat.querySelectorAll('.sidebar-links li');
+        let visibleCount = 0;
+        
+        links.forEach(li => {
+          const text = li.textContent.toLowerCase();
+          if (text.includes(query)) {
+            li.style.display = '';
+            visibleCount++;
+          } else {
+            li.style.display = 'none';
+          }
+        });
+        
+        if (visibleCount > 0) {
+          cat.style.display = '';
         } else {
-          li.style.display = 'none';
+          cat.style.display = 'none';
         }
       });
     });

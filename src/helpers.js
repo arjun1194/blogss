@@ -38,3 +38,14 @@ export function slugify(text) {
     .replace(/^-+/, '')
     .replace(/-+$/, '');
 }
+
+export function escapeHtml(str) {
+  if (!str) return '';
+  return str.toString()
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
