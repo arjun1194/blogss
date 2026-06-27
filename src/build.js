@@ -66,7 +66,7 @@ for (const file of mdFiles) {
 }
 
 // Sort posts chronologically (newest first)
-posts.sort((a, b) => new Date(b.date) - new Date(a.date));
+posts.sort((a, b) => b.date.localeCompare(a.date));
 
 // Build sidebar structure
 let sidebarHtml = '';
@@ -98,10 +98,10 @@ posts.forEach(post => {
   
   // Replace placeholders in templates
   let html = baseTemplate
-    .replace(/\{\{TITLE\}\}/g, post.title)
-    .replace(/\{\{CONTENT\}\}/g, post.bodyHtml)
-    .replace(/\{\{SIDEBAR\}\}/g, sidebarHtml.replace(/\{\{RELATIVE_PATH\}\}/g, '../../'))
-    .replace(/\{\{RELATIVE_PATH\}\}/g, '../../');
+    .replace(/\{\{TITLE\}\}/g, () => post.title)
+    .replace(/\{\{CONTENT\}\}/g, () => post.bodyHtml)
+    .replace(/\{\{SIDEBAR\}\}/g, () => sidebarHtml.replace(/\{\{RELATIVE_PATH\}\}/g, () => '../../'))
+    .replace(/\{\{RELATIVE_PATH\}\}/g, () => '../../');
     
   fs.writeFileSync(path.join(DIST_DIR, post.relativePath), html);
 });
@@ -144,8 +144,8 @@ Object.keys(postsByCategory).forEach(cat => {
 });
 
 const homepageHtml = homeTemplate
-  .replace(/\{\{TAGS\}\}/g, tagsCloudHtml)
-  .replace(/\{\{POSTS\}\}/g, postsListHtml);
+  .replace(/\{\{TAGS\}\}/g, () => tagsCloudHtml)
+  .replace(/\{\{POSTS\}\}/g, () => postsListHtml);
 
 fs.writeFileSync(path.join(DIST_DIR, 'index.html'), homepageHtml);
 console.log(`Compilation complete. Output generated under /dist folder.`);
