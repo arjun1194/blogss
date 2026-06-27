@@ -52,4 +52,10 @@ test('slugify handles special characters and emojis correctly', () => {
   assert.strictEqual(slugify('Hello, World! ⚡️'), 'hello-world');
 });
 
+test('parseFrontmatter handles empty arrays correctly', () => {
+  const content = `---\ntitle: Empty Tags\ntags: []\n---\n`;
+  const { metadata } = parseFrontmatter(content);
+  assert.deepStrictEqual(metadata.tags, []);
+});
+
 

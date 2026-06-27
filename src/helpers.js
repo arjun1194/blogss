@@ -12,7 +12,8 @@ export function parseFrontmatter(content) {
       const key = parts[0].trim();
       const val = parts.slice(1).join(':').trim().replace(/^["']|["']$/g, '');
       if (val.startsWith('[') && val.endsWith(']')) {
-        metadata[key] = val.slice(1, -1).split(',').map(s => s.trim().replace(/^["']|["']$/g, ''));
+        const contentInside = val.slice(1, -1).trim();
+        metadata[key] = contentInside ? contentInside.split(',').map(s => s.trim().replace(/^["']|["']$/g, '')) : [];
       } else {
         metadata[key] = val;
       }
