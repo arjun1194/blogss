@@ -5,4 +5,4 @@
 - [x] Task 3: Shared Templates and Styling Sheet (complete: commits 71bd9d8..3e77fd7, review clean)
 - [x] Task 4: Custom Node.js Static Builder Script (complete: commits 0750cd0..5a94b07, review clean)
 - [x] Task 5: Sample Contents for Verification (complete: commits f016df4..c5f8f17, review clean)
-- [ ] Task 6: GitHub Actions CI/CD Deployment Workflow
+- [x] Task 6: GitHub Actions CI/CD Deployment Workflow (complete: commits 1fa6a62, review clean)
